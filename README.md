@@ -8,7 +8,6 @@ This has now been solved :)
 So what to do with this data?
 
 
-
 # Use Cases
 
 
@@ -25,11 +24,11 @@ virtualenv env
 source env/bin/activate
 pip3 install -r requirements.txt 
 export es_hostname="192.168.1.55"
-export es_port="9200"
+export es_port=9200
 export es_user="elastic"
 export es_pass="b6ae2r"
 export ki_hostname="192.168.1.55"
-export ki_port="5601"
+export ki_port=5601
 export ki_user="elastic"
 export ki_pass="b6ae2r"
 
@@ -39,21 +38,11 @@ export ki_pass="b6ae2r"
 I am no programmer.. and never will be. It might be a great source for a drinking game. For every piece of code you find a more efficient way of writing it.. take a shot. Seriously, this can be improved in mmany ways.
 
 
-
-
-
-
-
-
 /usr/share/elastic-agent/bin# ./elastic-agent enroll http://localhost:5601 V09xYTRYWUJKWnFiU05OS2J4QVg6NExaSHU1dmNUR0dsNTQtMDAtQTFkZw== --path.config /etc/elastic-agent/ --insecure
 
 sudo service elastic-agent start
 
 f7wQ7zEIP9Pn5IvUj5GlF841
-
-
-
-
 
 
 # A better way to visualize, filter and search MITRE ATT&CK matrix

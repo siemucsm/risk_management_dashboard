@@ -24,20 +24,19 @@ class ElasticSearch:
         if es_pass is None:
             exit('You need to export Elasticsearch password')
 
-        self.es     = Elasticsearch([{'host': es_host, 'port': es_port}], scheme='https', ca_certs=False, verify_certs=False, http_auth=(es_user, es_pass))
+        self.es     = Elasticsearch([{'host': es_host, 'port': 9200, 'scheme': 'https'}], ca_certs=False, verify_certs=False, http_auth=(str(es_user), str(es_pass)))
         self.index  = index
-
 
     def delete_index(self):
         if self.exists():
-            self._result = self.es.indices.delete(self.index)
+            self._result = self.es.indices.delete(index=self.index)
         return self
     
     def exists(self):
-        return self.es.indices.exists(self.index)
+        return self.es.indices.exists(index=self.index)
     
     def create_index(self):
-        self._result = self.es.indices.create(self.index)
+        self._result = self.es.indices.create(index=self.index)
         return self
 
     def add_bulk(self, data):
