@@ -1,5 +1,5 @@
 # Introduction
-On the 15th of December, the Center for Threat-Informed Defense (mitre-engenuity.org/ctid/) has released a set of mappings between Mitre Attack (https://attack.mitre.org/) and NIST Special Publications 800-53 (https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final). Tiffany Bergeron and Jon Baker have written a post (https://medium.com/mitre-engenuity/security-control-mappings-a-bridge-to-threat-informed-defense-2e42a074f64a) detailing some of the benefits of the mapping activity. Check out also their github repository (https://github.com/center-for-threat-informed-defense/attack-control-framework-mappings), where you can access all the related work.
+The Center for Threat-Informed Defense (mitre-engenuity.org/ctid/) has released a set of mappings between Mitre Attack (https://attack.mitre.org/) and NIST Special Publications 800-53 (https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final). Tiffany Bergeron and Jon Baker have written a post (https://medium.com/mitre-engenuity/security-control-mappings-a-bridge-to-threat-informed-defense-2e42a074f64a) detailing some of the benefits of the mapping activity. Check out also their github repository (https://github.com/center-for-threat-informed-defense/attack-control-framework-mappings), where you can access all the related work.
 
 The work by the CTID team is the missing piece to my previous work (https://www.siemucsm.com). In my master thesis I was focusing the mapping on the data sources of thr Mitre Attack Framework. Due to time and resource constraints it would have never been an option to map all Attack Techniques to an individual security control standard such as NIST SP800-53, ISO 27001 or NIST CSF.
 
@@ -14,7 +14,11 @@ So what to do with this data?
 # Types of Dashboards
 
 ## NIST 800-53 r5 Dashboard
-Filters: Control Family, Control Name, Tactic, Technique, Priorities
+Filters:
+- NIST Control Family
+- NIST Control Name
+- Mitre Tactic Name
+- Mitre Technique Name
 
 
 # Installation
@@ -33,6 +37,29 @@ export ki_user="elastic"
 export ki_pass="b6ae2r"
 
 
+Run these scripts
+
+Mitre Attack Information -> Own Dashboard
+attack-to-elk.py
+
+Mapping of CSF to NIST 800-53 Rev.5
+[TESTED] csf_nist800_map.py
+
+Mapping of Security Control Framework to Attack v2 (enhancement) -> Own Dashboard
+[TESTED] mitre_nist_mapping.py
+
+[TESTED] Mapping of ISO27001 to NIST 800-53 Rev.5
+nist800_iso27_map.py
+
+Now we need the alert index. The script will collect all "enabled" rules and extract all tactics and techniques
+I needs the mitre_nist_mapping_new index to function.
+[TESTED] python rules.py
+
+alert-rules
+.siem-signals-default
+
+
+
 # Technical stuff
 
 I am no programmer.. and never will be. It might be a great source for a drinking game. For every piece of code you find a more efficient way of writing it.. take a shot. Seriously, this can be improved in mmany ways.
@@ -47,7 +74,7 @@ f7wQ7zEIP9Pn5IvUj5GlF841
 
 # A better way to visualize, filter and search MITRE ATT&CK matrix
 
-This program exports MITRE ATT&amp;CK enterpise matrix into a ELK dashboard. Check out [this blog post entry](https://blog.michaelhidalgo.info/2019/01/mitre-att-as-kibana-dashboard-part-ll.html) for having better understanding on the benefits of exporting the ATT&CK enterprise matrix into ELK.
+This program exports MITRE ATT&amp;CK enterpise matrix into a ELK dashboard. Check out [this blog post entry](https://michaelhidalgocr.blogspot.com/2019/01/mitre-att-as-kibana-dashboard-part-ll.html) for having better understanding on the benefits of exporting the ATT&CK enterprise matrix into ELK.
 
 ![Alt text](/img/platform.jpg?raw=true "MITRE ATT&CK Dashboard")
 

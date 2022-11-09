@@ -1,7 +1,7 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3.9
 
 __AUTHOR__ = 'Pascal Imthurn'
-__VERSION__ = "1.0 January 2021"
+__VERSION__ = "1.1 October 2022"
 
 """
 Process the Detection Rules and extract the Mitre Information. Store the result in Elastic

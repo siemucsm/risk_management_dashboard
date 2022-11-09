@@ -6,3 +6,4 @@ exrex
 lxml
 BeautifulSoup4
 python-docx
+html5lib

@@ -1,8 +1,8 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3.9
 
 __AUTHOR__ = 'Michael Hidalgo, Pascal Imthurn'
 __CREDITS__ = 'Michael Hidalgo'
-__VERSION__ = "1.0 January 2021"
+__VERSION__ = "1.1 October 2022"
 
 """
 Acquire the Mitre Attack raw data and process to be loaded into ES

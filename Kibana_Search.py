@@ -1,7 +1,8 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3.9
 
-__AUTHOR__ = 'Pascal Imthurn'
-__VERSION__ = "1.0 January 2021"
+__AUTHOR__ = 'Michael Hidalgo, Pascal Imthurn'
+__CREDITS__ = 'Michael Hidalgo'
+__VERSION__ = "1.1 October 2022"
 
 """
 Download all enabled Detection Rules. The goal is to extract all Technique IDs and to import them into an index used by visualisations
@@ -15,6 +16,8 @@ curl -X GET "ki_user:ki_pass@ki_hostname:ki_port/api/detection_engine/rules/_fin
 
 import requests
 import os
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class KibanaSearch:
     RULE_DATA_QUERY = "/api/detection_engine/rules/_find"

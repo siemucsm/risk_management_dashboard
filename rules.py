@@ -1,10 +1,14 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3.9
 
 __AUTHOR__ = 'Pascal Imthurn'
-__VERSION__ = "1.0 January 2021"
+__VERSION__ = "1.1 October 2022"
 
 """
 Process the Detection Rules and extract the Mitre Information. Store the result in Elastic
+The script collects all "enabled" rules and extracts all tactics and techniques.
+
+-> Enhancement that filtering in the NIST Dashboard will work. Map Technique ID to the NIST 800-53 Data
+-> I suppose we can do a lookup on the mitre_nist_mapping_new index to collect the needed information
 
 Install dependencies with:
 pip install -r requirements.txt
@@ -13,6 +17,8 @@ pip install -r requirements.txt
 import json 
 import Kibana_Search
 from Elastic_Search import ElasticSearch
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 TACTIC_NAME = {
 	'TA0001': 'Initial Access',
@@ -27,6 +33,7 @@ TACTIC_NAME = {
 	'TA0010': 'Exfiltration',
 	'TA0011': 'Command and Control',
 	'TA0040': 'Impact',
+	'TA0042': 'Resource Development',
 	'TA0043': 'Reconnaissance'
 
 }
@@ -43,12 +50,16 @@ TACTIC_DESC = {
 	'TA0010': 'The adversary is trying to steal data.',
 	'TA0011': 'The adversary is trying to communicate with compromised systems to control them.',
 	'TA0040': 'The adversary is trying to manipulate, interrupt, or destroy your systems and data.',
+	'TA0042': 'The adversary is trying to establish resources they can use to support operations.', 
 	'TA0043': 'The adversary is trying to gather information they can use to plan future operations.'
 }
 TACTIC_LINK = 'https://attack.mitre.org/tactics/'
 
 def extract_technique(data):
 	rules = []
+	tname = ""
+	n800_ctl_name = ""
+	n800_ctl_fam_name = ""
 	for item in data:
 		name = item.get('name')
 		rule_id = item.get('rule_id')
@@ -70,18 +81,46 @@ def extract_technique(data):
 			if len(attack_tech_data["hits"]["hits"]) > 0:
 				tname = attack_tech_data["hits"]["hits"][0]['_source']['technique_name']
 
-			rule_json = {
-				'rule_name': name,
-				'rule_id': rule_id,
-				'rule_description': desc,
-				'tactic_id': tac_id,
-				'technique_id': tec_id,
-				'technique_name': tname,
-				'tactic_name': tac_name,
-				'tactic_description': tac_desc,
-				'tactic_link': tac_link
-			}
-			rules.append(rule_json)
+			# Each rule needs to have a mapping to NIST800
+			# If rule matches Txxxx, we need all the Txxxx entries from NIST800
+			nist800_data = query_es_nist800(tname)
+			if len(nist800_data["hits"]["hits"]) > 0:
+				print(rule_id, len(nist800_data["hits"]["hits"]), tname)
+				n800_ctl_name = ""
+				n800_ctl_fam_name = ""
+				for idx, val in enumerate(nist800_data["hits"]["hits"]):
+					n800_ctl_name = nist800_data["hits"]["hits"][idx]['_source']['nist800_control_name']
+					n800_ctl_fam_name = nist800_data["hits"]["hits"][idx]['_source']['nist800_control_family_name']
+
+					rule_json = {
+						'rule_name': name,
+						'rule_id': rule_id,
+						'rule_description': desc,
+						'tactic_id': tac_id,
+						'technique_id': tec_id,
+						'technique_name': tname,
+						'tactic_name': tac_name,
+						'tactic_description': tac_desc,
+						'tactic_link': tac_link,
+						'nist800_control_name': n800_ctl_name,
+						'nist800_control_family_name': n800_ctl_fam_name
+					}
+					rules.append(rule_json)
+			else:
+				rule_json = {
+					'rule_name': name,
+					'rule_id': rule_id,
+					'rule_description': desc,
+					'tactic_id': tac_id,
+					'technique_id': tec_id,
+					'technique_name': tname,
+					'tactic_name': tac_name,
+					'tactic_description': tac_desc,
+					'tactic_link': tac_link,
+					'nist800_control_name': n800_ctl_name,
+					'nist800_control_family_name': n800_ctl_fam_name
+				}
+				rules.append(rule_json)
 
 	return rules
 
@@ -103,6 +142,30 @@ def data_extractor(data, lookup):
 def query_es(tid):
 	es = ElasticSearch('mitre-attack-techniques')
 	query = {"query": {"match": {"technique_id": tid}}}
+	return es.search(query)
+
+def query_es_nist800(tname):
+	es = ElasticSearch('mitre-nist-mapping_new')
+	query = {"size": 10000, "query": {
+    "bool": {
+      "must": [
+        {
+          "bool": {
+            "should": [
+              {
+                "match_phrase": {
+                  "technique_name": tname
+                }
+              }
+            ],
+            "minimum_should_match": 1
+          }
+        }
+      ],
+      "filter": [],
+      "should": [],
+      "must_not": []
+    }}}
 	return es.search(query)
 
 def main():

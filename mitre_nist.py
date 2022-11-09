@@ -1,7 +1,7 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3.9
 
 __AUTHOR__ = 'Pascal Imthurn'
-__VERSION__ = "1.0 January 2021"
+__VERSION__ = "1.1 October 2022"
 
 """
 Acquire the Mitre Attack raw data and process to be loaded into ES
@@ -18,7 +18,8 @@ import json
 from Elastic_Search import ElasticSearch
 
 MITRE_NIST_MAPPING_NAME = 'mitre_nist.xlsx'
-MITRE_NIST_URL = 'https://github.com/center-for-threat-informed-defense/attack-control-framework-mappings/raw/master/frameworks/nist800-53-r5/nist800-53-r5-mappings.xlsx'
+MITRE_NIST_URL = 'https://github.com/center-for-threat-informed-defense/attack-control-framework-mappings/raw/main/frameworks/attack_10_1/nist800_53_r5/nist800-53-r5-mappings.xlsx'
+#MITRE_NIST_URL = 'https://github.com/center-for-threat-informed-defense/attack-control-framework-mappings/raw/master/frameworks/nist800-53-r5/nist800-53-r5-mappings.xlsx'
 NIST800_CONTROL_FAM = {
 	'AC': 'Access Control',
 	'CM': 'Configuration Management',

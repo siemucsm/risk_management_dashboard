@@ -1,7 +1,7 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3.9
 
 __AUTHOR__ = 'Pascal Imthurn'
-__VERSION__ = "1.0 January 2021"
+__VERSION__ = "1.1 October 2022"
 
 """
 Downloader for files
@@ -46,6 +46,18 @@ class utils(object):
             self._download_and_save('json')
         f = open(self.name,'r')
         return f.read()
+
+    def read_txt_file(self):
+        if  self._file_exists():
+            #f = open(self.name,'r')
+            #return f.read()
+            data = {}
+            with open(self.name,'r') as f:
+                for line in f:
+                    line = line.strip()
+                    (key, val) = line.split(';')
+                    data[key] = val
+            return data
 
     def get_excel(self):
         if not self._file_exists():
