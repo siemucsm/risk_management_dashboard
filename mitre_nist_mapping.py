@@ -1,7 +1,7 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3.9
 
 __AUTHOR__ = 'Pascal Imthurn'
-__VERSION__ = "1.0 January 2021"
+__VERSION__ = "1.2 November 2022"
 
 """
 Acquire the Mitre Attack & NIST 800-53 r5 raw data and process to be loaded into ES
@@ -80,6 +80,46 @@ NIST800_CONTROL_RAT = {
 	'SR': 'Supply Chain Risk Management is in scope as they provide technical and operational controls for security testing and evaluation of supply chain processes and elements.'
 }
 
+ES_INDEX = "mitre-nist-mapping_new"
+
+ES_MAPPING = {
+  "properties": {
+      "kibana": {
+        "properties": {
+          "alert": {
+            "properties": {
+              "rule": {
+                "properties": {
+                  "threat": {
+                    "properties": {
+                      "tactic": {
+                        "properties": {
+                          "name": {
+                            "type": "keyword"
+                          }
+                        }
+                      },
+                      "technique": {
+                        "properties": {
+                          "id": {
+                            "type": "keyword"
+                          },
+                          "name": {
+                            "type": "keyword"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+  }
+}
+
 def parse_mapping(data, mitigations, hbase, mbase, lbase, pbase, controlname):
 	'''
 		data:			Mitre - NIST Mapping data from the "Center for Threat Informed Defense"
@@ -91,7 +131,7 @@ def parse_mapping(data, mitigations, hbase, mbase, lbase, pbase, controlname):
 		controlname:	NIST 800-53B Control ID and Control Names
 	'''
 	map_data = []	
-	es = ElasticSearch('mitre-nist-mapping_new').delete_index().create_index()
+	es = ElasticSearch(ES_INDEX, ES_MAPPING).delete_index().create_index()
 
 	for key in data:
 		# techniqueID and ControlID need to be parsed
@@ -118,10 +158,10 @@ def parse_mapping(data, mitigations, hbase, mbase, lbase, pbase, controlname):
 					"attack_mitigation_id": key['mitigationID'],
 					"attack_mitigation_name": mitigation['Name'],
 					"attack_mitigation_desc": mitigation['Description'],
-					"technique_id": tech,
-					"technique_name": tname,
+					"kibana.alert.rule.threat.technique.id": tech,
+					"kibana.alert.rule.threat.technique.name": tname,
 					"technique_desc": tdesc,
-					"tactic_name": tacti,
+					"kibana.alert.rule.threat.tactic.name": tacti,
 					"nist800_control_id": ctrl,
 					"nist800_control_name": controlname[ctrl],
 					"nist800_control_family_id": fam,
@@ -174,7 +214,7 @@ def parse_baseline(controlid, data):
 			return True
 
 def query_es(tid):
-	es = ElasticSearch('mitre-attack-techniques')
+	es = ElasticSearch('mitre-attack-techniques', '')
 	query = {"query": {"match": {"technique_id": tid}}}
 	return es.search(query)
 

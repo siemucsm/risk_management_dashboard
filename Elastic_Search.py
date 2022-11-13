@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.9
 
 __AUTHOR__ = 'Pascal Imthurn'
-__VERSION__ = "1.0 January 2021"
+__VERSION__ = "1.2 November 2022"
 
 import os
 from elasticsearch import Elasticsearch, helpers
@@ -9,7 +9,7 @@ from elasticsearch import Elasticsearch, helpers
 #elasticsearch.connection.http_urllib3.disable_warnings(InsecureRequestWarning)
 
 class ElasticSearch:
-    def __init__(self, index):
+    def __init__(self, index, mapping):
         es_host     = os.environ['es_hostname']
         es_port     = os.environ['es_port']
         es_user     = os.environ['es_user']
@@ -26,6 +26,7 @@ class ElasticSearch:
 
         self.es     = Elasticsearch([{'host': es_host, 'port': 9200, 'scheme': 'https'}], ca_certs=False, verify_certs=False, http_auth=(str(es_user), str(es_pass)))
         self.index  = index
+        self.mapping   = mapping
 
     def delete_index(self):
         if self.exists():
@@ -36,7 +37,7 @@ class ElasticSearch:
         return self.es.indices.exists(index=self.index)
     
     def create_index(self):
-        self._result = self.es.indices.create(index=self.index)
+        self._result = self.es.indices.create(index=self.index, mappings=self.mapping)
         return self
 
     def add_bulk(self, data):

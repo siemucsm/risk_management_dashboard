@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.9
 
 __AUTHOR__ = 'Pascal Imthurn'
-__VERSION__ = "1.1 October 2022"
+__VERSION__ = "1.2 November 2022"
 
 """
 Process the Detection Rules and extract the Mitre Information. Store the result in Elastic
@@ -9,6 +9,7 @@ The script collects all "enabled" rules and extracts all tactics and techniques.
 
 -> Enhancement that filtering in the NIST Dashboard will work. Map Technique ID to the NIST 800-53 Data
 -> I suppose we can do a lookup on the mitre_nist_mapping_new index to collect the needed information
+-> Will not import the Machine Learning rules (rules need to be enabled, and that is not the case on my test cluster)
 
 Install dependencies with:
 pip install -r requirements.txt
@@ -53,7 +54,12 @@ TACTIC_DESC = {
 	'TA0042': 'The adversary is trying to establish resources they can use to support operations.', 
 	'TA0043': 'The adversary is trying to gather information they can use to plan future operations.'
 }
+
 TACTIC_LINK = 'https://attack.mitre.org/tactics/'
+
+ES_INDEX = "alert-rules"
+
+ES_MAPPING = {}
 
 def extract_technique(data):
 	rules = []
@@ -85,7 +91,7 @@ def extract_technique(data):
 			# If rule matches Txxxx, we need all the Txxxx entries from NIST800
 			nist800_data = query_es_nist800(tname)
 			if len(nist800_data["hits"]["hits"]) > 0:
-				print(rule_id, len(nist800_data["hits"]["hits"]), tname)
+				#print(rule_id, len(nist800_data["hits"]["hits"]), tname)
 				n800_ctl_name = ""
 				n800_ctl_fam_name = ""
 				for idx, val in enumerate(nist800_data["hits"]["hits"]):
@@ -93,30 +99,30 @@ def extract_technique(data):
 					n800_ctl_fam_name = nist800_data["hits"]["hits"][idx]['_source']['nist800_control_family_name']
 
 					rule_json = {
-						'rule_name': name,
-						'rule_id': rule_id,
+						'kibana.alert.rule.name': name,
+						'kibana.alert.rule.rule_id': rule_id,
 						'rule_description': desc,
-						'tactic_id': tac_id,
-						'technique_id': tec_id,
-						'technique_name': tname,
-						'tactic_name': tac_name,
+						'kibana.alert.rule.threat.tactic.id': tac_id,
+						'kibana.alert.rule.threat.technique.id': tec_id,
+						'kibana.alert.rule.threat.technique.name': tname,
+						'kibana.alert.rule.threat.tactic.name': tac_name,
 						'tactic_description': tac_desc,
-						'tactic_link': tac_link,
+						'kibana.alert.rule.threat.tactic.reference': tac_link,
 						'nist800_control_name': n800_ctl_name,
 						'nist800_control_family_name': n800_ctl_fam_name
 					}
 					rules.append(rule_json)
 			else:
 				rule_json = {
-					'rule_name': name,
-					'rule_id': rule_id,
+					'kibana.alert.rule.name': name,
+					'kibana.alert.rule.rule_id': rule_id,
 					'rule_description': desc,
-					'tactic_id': tac_id,
-					'technique_id': tec_id,
-					'technique_name': tname,
-					'tactic_name': tac_name,
+					'kibana.alert.rule.threat.tactic.id': tac_id,
+					'kibana.alert.rule.threat.technique.id': tec_id,
+					'kibana.alert.rule.threat.technique.name': tname,
+					'kibana.alert.rule.threat.tactic.name': tac_name,
 					'tactic_description': tac_desc,
-					'tactic_link': tac_link,
+					'kibana.alert.rule.threat.tactic.reference': tac_link,
 					'nist800_control_name': n800_ctl_name,
 					'nist800_control_family_name': n800_ctl_fam_name
 				}
@@ -125,7 +131,7 @@ def extract_technique(data):
 	return rules
 
 def upload_data(rules):
-	es = ElasticSearch('alert-rules').delete_index().create_index()
+	es = ElasticSearch(ES_INDEX, ES_MAPPING).delete_index().create_index()
 	return es.add_bulk(rules)
 
 def data_extractor(data, lookup):
@@ -140,12 +146,12 @@ def data_extractor(data, lookup):
 			yield from data_extractor(item, lookup)
 
 def query_es(tid):
-	es = ElasticSearch('mitre-attack-techniques')
+	es = ElasticSearch('mitre-attack-techniques', '')
 	query = {"query": {"match": {"technique_id": tid}}}
 	return es.search(query)
 
 def query_es_nist800(tname):
-	es = ElasticSearch('mitre-nist-mapping_new')
+	es = ElasticSearch('mitre-nist-mapping_new', '')
 	query = {"size": 10000, "query": {
     "bool": {
       "must": [
@@ -154,7 +160,7 @@ def query_es_nist800(tname):
             "should": [
               {
                 "match_phrase": {
-                  "technique_name": tname
+                  "kibana.alert.rule.threat.technique.name": tname
                 }
               }
             ],

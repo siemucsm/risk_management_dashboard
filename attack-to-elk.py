@@ -18,6 +18,8 @@ from Elastic_Search import ElasticSearch
 MITRE_ATTACK_FILE_NAME = 'attack_matrix.json'
 MITRE_ATTACK_URL       = 'https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json'
 
+ES_MAPPING = {}
+
 def get_mitre_attack_technique_datasources(tactic_name,technique_name, technique_id, datasources):
     
     if datasources is not None:
@@ -158,11 +160,11 @@ def parse_mitre_attack_techniques (mitre_attack_matrix):
     platforms               = []
     groups                  = []
     software                = []
-    data_source_index       = ElasticSearch('mitre-attack-datasources').delete_index().create_index()
-    platforms_index         = ElasticSearch('mitre-attack-platforms'  ).delete_index().create_index()
-    technique_index         = ElasticSearch('mitre-attack-techniques' ).delete_index().create_index()
-    groups_index            = ElasticSearch('mitre-attack-groups'     ).delete_index().create_index()
-    software_index          = ElasticSearch('mitre-attack-software'   ).delete_index().create_index()
+    data_source_index       = ElasticSearch('mitre-attack-datasources', ES_MAPPING).delete_index().create_index()
+    platforms_index         = ElasticSearch('mitre-attack-platforms', ES_MAPPING).delete_index().create_index()
+    technique_index         = ElasticSearch('mitre-attack-techniques', ES_MAPPING).delete_index().create_index()
+    groups_index            = ElasticSearch('mitre-attack-groups', ES_MAPPING).delete_index().create_index()
+    software_index          = ElasticSearch('mitre-attack-software', ES_MAPPING).delete_index().create_index()
     
     for technique in mitre_attack_techniques:
         technique_json                  = {}
@@ -213,7 +215,7 @@ def parse_mitre_attack_tactics(attack_matrix):
     tactics              = []
     # filters out MITRE ATT&CK tactics
     mitre_attack_tactics = get_mitre_attack_items_by_type(attack_matrix,"x-mitre-tactic")
-    es = ElasticSearch('mitre-attack-tactics').delete_index().create_index()
+    es = ElasticSearch('mitre-attack-tactics', ES_MAPPING).delete_index().create_index()
     
     for tactic in mitre_attack_tactics:
         tactic_id                   = ''

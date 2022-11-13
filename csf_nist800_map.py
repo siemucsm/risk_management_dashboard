@@ -31,6 +31,10 @@ NIST800_CONTROL_FAM = {
 	'PL': 'Planning'
 }
 
+ES_INDEX = "csf-nist800-map"
+
+ES_MAPPING = {}
+
 def parse_map(data):
 	maps = []
 	for item in data:
@@ -67,7 +71,7 @@ def create_json(function, cat_head, cat_text, sub_head, sub_text, cid):
 	return rule_json
 
 def upload_data(map):
-	es = ElasticSearch('csf-nist800-map').delete_index().create_index()
+	es = ElasticSearch(ES_INDEX, ES_MAPPING).delete_index().create_index()
 	return es.add_bulk(map)
 
 def main():
