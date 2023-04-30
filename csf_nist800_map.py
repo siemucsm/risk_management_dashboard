@@ -18,17 +18,25 @@ NIST800_CSF_MAP = 'https://csrc.nist.gov/CSRC/media/Publications/sp/800-53/rev-5
 NIST800_CSF_MAP_NAME = 'csf-pf-to-sp800-53r5-mappings.xlsx'
 NIST800_CONTROL_FAM = {
 	'AC': 'Access Control',
+	'AT': 'Awareness and Training',
+	'AU': 'Audit and Accountability',
 	'CM': 'Configuration Management',
 	'CP': 'Contingency Planning',
 	'IA': 'Identification and Authentication',
+	'IR': 'Incident Response',
+	'MA': 'Maintenance',
 	'MP': 'Media Protection',
+	'PE': 'Physical and Environmental Protection',
+	'PL': 'Planning',
+	'PM': 'Program Management',
+	'PS': 'Personnel Security',
+	'PT': 'PII Processing and Transparency',
 	'RA': 'Risk Assessment',
 	'CA': 'Security Assessment and Authorization',
 	'SC': 'System and Communications Protection',
 	'SI': 'System and Information Integrity',
 	'SA': 'System and Services Acquisition',
-	'SR': 'Supply Chain Risk Management',
-	'PL': 'Planning'
+	'SR': 'Supply Chain Risk Management'
 }
 
 ES_INDEX = "csf-nist800-map"
@@ -49,24 +57,27 @@ def parse_map(data):
 
 		for key in map_list:
 			cid = key.strip()
+			cfid = cid.split('-', 1)[0]
 			# Exceptions: "all -1 controls", "-1 controls from all security control families"
 			if cid == 'all -1 controls' or cid == '-1 controls from all security control families':
 				for famid in NIST800_CONTROL_FAM:
 					cid = famid + "-1"
-					maps.append(create_json(function, cat_head, cat_text, sub_head, sub_text, cid))
+					maps.append(create_json(function, cat_head, cat_text, sub_head, sub_text, cid, famid, NIST800_CONTROL_FAM[famid]))
 			else:
-				maps.append(create_json(function, cat_head, cat_text, sub_head, sub_text, cid))
+				maps.append(create_json(function, cat_head, cat_text, sub_head, sub_text, cid, cfid, NIST800_CONTROL_FAM[cfid]))
 
 	return maps
 
-def create_json(function, cat_head, cat_text, sub_head, sub_text, cid):
+def create_json(function, cat_head, cat_text, sub_head, sub_text, cid, famid, famname):
 	rule_json = {
 		'csf_function': function,
 		'csf_category': cat_head,
 		'csf_category_text': cat_text,
 		'csf_subcategory': sub_head,
 		'csf_subcategory_text': sub_text,
-		'nist800_control_id': cid
+		'nist800_control_id': cid,
+		'nist800-control_family_id': famid,
+		'nist800_control_familiy_name': famname
 	}
 	return rule_json
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3.9
 
-__AUTHOR__ = 'Michael Hidalgo, Pascal Imthurn'
-__CREDITS__ = 'Michael Hidalgo'
+__AUTHOR__ = 'Pascal Imthurn'
 __VERSION__ = "1.1 October 2022"
 
 """
