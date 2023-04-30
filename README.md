@@ -41,12 +41,17 @@ By filtering for a specific Attack Technique (Command and Scripting Interpreter 
 * The selected Technique is shown (5).
 * The list of related SIEM Use Cases are show. These SIEM Use cases help to detect that specific Attack Technique (6).
 * A very helpful item is shown in (7), which is a list of recommended mitigations against that Attack Technique. That information is even more useful, when a NIST Control is s used as a filter and you want to know what measures are recommended to mitigate against threats impacting that NIST Control.
-* And last but not least, the actual detections in relation to the Attack Technique.
+* And last but not least, the actual detections in relation to the Attack Technique (8).
 
-That information helps your organisation to understand what is impacted on the technical level but also, and most probaly more relevant, what part of the business is impacted.
+The discussed information helps your organisation to understand what is impacted on the technical level but also, and most probaly more relevant, what part of the business is impacted. Data mapping between core business processes and the framework data depends heavely on how you internally structure risks. Here is a very basic example on how the result might look. On the Y-axis are the 5 top business processes listed. On the X-axis are the cyber impacts shown. Everybody within your organisation understands this graph without further explanation. *There is no discussion which user, database or server is under threat but what part of the business is impacted by a cyber threat.*
 
-Example:
 ![Alt text](/img/Core_Business_Process_Risks.png?raw=true "Core Business Process Risks")
+
+A few ideas what could contribute to the score shown in the above graph:
+* the count of security alerts
+* the sum of risk scoring of the individual security alerts
+* additional scoring of the core business processes (which process is the most critical?)
+* vulnerability findings
 
 
 ## Attack Mitigation (Part of this release)
@@ -207,54 +212,4 @@ The overal count of Data Sources is currently 39 (v12). The graphs include also 
 # Technical stuff
 
 I am no programmer.. and never will be. It might be a great source for a drinking game. For every piece of code you find a more efficient way of writing it.. take a shot. Seriously, this can be improved in mmany ways.
-
-
-/usr/share/elastic-agent/bin# ./elastic-agent enroll http://localhost:5601 V09xYTRYWUJKWnFiU05OS2J4QVg6NExaSHU1dmNUR0dsNTQtMDAtQTFkZw== --path.config /etc/elastic-agent/ --insecure
-
-sudo service elastic-agent start
-
-f7wQ7zEIP9Pn5IvUj5GlF841
-
-
-# A better way to visualize, filter and search MITRE ATT&CK matrix
-
-This program exports MITRE ATT&amp;CK enterpise matrix into a ELK dashboard. Check out [this blog post entry](https://michaelhidalgocr.blogspot.com/2019/01/mitre-att-as-kibana-dashboard-part-ll.html) for having better understanding on the benefits of exporting the ATT&CK enterprise matrix into ELK.
-
-![Alt text](/img/platform.jpg?raw=true "MITRE ATT&CK Dashboard")
-
-# Visualizing the relationship between MITRE ATT&CK Tactics, Techniques, Groups and Software
-
-![Alt text](/img/dashboard-software-groups.jpg?raw=true "ELK artifacts")
-
-
-# Filtering out by MITRE ATT&CK Techniques
-
-![Alt text](/img/ps-filter.jpg?raw=true "ELK artifacts")
-
-# Installation
-1. Clone or fork this repo git@github.com:michaelhidalgo/attack-to-elk.git
-2. Create a virtual environment using virtualenv:
-```
-virtualenv env
-```
-
-3. Activate the virtual environment running source env/bin/activate from the root folder.
-5. Install dependencies from requirements file pip3 install -r requirements.txt
-5. Export following environment variables with Elasticsearch IP address and port:
- ```
-   export es_hostname='Your ELK IP'
-   export es_port='Your ELK port (9200 by default)'
-  ```
-6. Run the program using Python3:
-``` python
-python3 attack-to-elk.py
-```
-# Importing ELK artifacts
-
-All visualizations, index patterns and dashboards were exported into an [artifact JSON file](https://github.com/michaelhidalgo/attack-to-elk/tree/master/elk-artifacts).
-
-Once you've run the script and indexing the matrix, you can go to Kibana Management -> Saved Objects and Import. From there you can choose the artifacts JSON described above and that's it.
-
-
-![Alt text](/img/artifact-import.jpg?raw=true "ELK artifacts")
 
